@@ -60,60 +60,105 @@ while true; do
 		read yesno
 		if [ "$yesno" == "y" ];
 		then
-			echo "Please enter the number of the title to encode (If you do not know please enter '1'): "
+			echo "Please enter the number of the title to encode (If you do not know please enter '0'): "
 			read _TitleNum
-			echo "Now going to make a digital backup of "$_MovieTitle" it will be located in ~/Videos/Movie_Backups/"
+			if [ "$_TitleNum" == "0" ];
+			then
+				echo "Now going to scan disc for Main Feature movie track."
+				sleep 3
+				HandBrakeCLI -i /dev/sr0 -t "$_TitleNum" -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160 2>&1 | tee output
+				_MainTrack=$(grep -B1 Main output | grep title | tr -dc '0-9')
+				echo "Your Main Feature title track is # "$_MainTrack" "
+				echo "Now going to try to digitize your movie titled "$_MovieTitle"."
+				sleep 4
+				HandBrakeCLI -i /dev/sr0 -t "$_MainTrack" -o "$_MovieTitle".mp4 -e x264
+			else
+			echo "Now going to make a digital backup of "$_MovieTitle" title track # "$_TitleNum", it will be located in ~/Videos/Movie_Backups/"
 			sleep 3
 			HandBrakeCLI -i /dev/sr0 -t "$_TitleNum" -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160
 			break
+		fi
 		else
 			if [ "$yesno" == "n" ];
 			then
 				echo "Going to use default settings."
-				echo "Now going to make a digital backup of "$_MovieTitle" it will be located in ~/Videos/Movie_Backups/"
+				echo "Now going to attemp to make a digital backup of "$_MovieTitle" it will be located in ~/Videos/Movie_Backups/"
 				sleep 3
-				HandBrakeCLI -i /dev/sr0 -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160
+				HandBrakeCLI -i /dev/sr0 -t 0 -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160 2>&1 | tee output
+				_CheckMainTrack=$(grep -B1 Main outpu | grep title | tr -dc '0-9')
+				sleep 2
+				HandBrakeCLI -i /dev/sr0 -t "$_CheckMainTrack" -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160
+				sleep 5
 				break
 			fi
 		fi
 	fi
-	_CheckForFile=$(ls | grep "$_MovieTitle")
-		if [ "" == "$_CheckForFile" ];
+done
+########################################################################
+# Here we check the size of new created movie file to see if it is
+# big enough to be the actual movie.
+# NOTE: This is risky using a static minimum size as theoretically the
+# main movie file could be less than the test minimun size.  Will
+# fix this later.
+
+while true; do
+_minimumsize=100000000
+_actualsize=$(wc -c <"$_MovieTitle".mp4) >> /dev/null
+echo "$_actualsize"
+sleep 3
+if [[ $_actualsize -ge $_minimumsize ]]; then
+	echo "size is over "$_minimumsize" bytes"
+	sleep 5
+else
+	echo "size is under "$_minimumsize" bytes"
+	rm -f "$_MovieTitle".mp4
+	echo "The chosen Title Index did NOT contain the main movie."
+	sleep 1
+fi
+_CheckForFile=$(ls | grep "$_MovieTitle")
+sleep 5
+if [ "" == "$_CheckForFile" ];
+then
+	echo -e "\n"
+	echo "There was an error with the copying of your movie, usually this means that you need to manually specify the correct title number to encode.  I recommend trying again with a different title number.  If you do not know what this means you can read more about it at https://handbrake.fr/docs/en/1.2.0/ or you can read the manual page by running 'man HandBrakeCLI' in your linux terminal."
+		echo -e "\n"
+		echo "Would you like to try to copy again using a different title number? y/n"
+		read _retry
+		if [ "$_retry" == "y" ];
 		then
-			echo "There was an error with the copying of your movie, usually this means that you need to manually specify the correct title number to encode.  I recommend trying again with a different title number.  If you do not know what this means you can read more about it at https://handbrake.fr/docs/en/1.2.0/ or you can read the manual page by running 'man HandBrakeCLI' in your linux terminal." 
-			echo -e "\n"
-			echo "Would you like to try to copy again using a different title number? y/n"
-			read _retry
-			if [ "$_retry" == "y" ];
+			echo "Please enter the number of the title to encode (If you do not know please enter '0'): "
+			read _Retry
+			if [ "$_Retry" == "0" ];
 			then
-				echo "Please enter the number of the title to encode (If you do not know please enter '1'): "
-				read _TitleNum
 				echo "Now going to make a digital backup of "$_MovieTitle" it will be located in ~/Videos/Movie_Backups/"
 				sleep 3
-				HandbrakeCLI -i /dev/sr0 -t "$_TitleNum" -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160
-				break
-			else
-				if [ "$_retry" == "n" ];
-				then
-					echo "Sorry your movie has not been copied. Thank You! - Jhart"
-					break
-				fi
+				HandBrakeCLI -i /dev/sr0 -t "$_Retry" -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160 2>&1 2>&1 | tee output
+				_MainTrack=$(grep -B1 Main output | grep title | tr -dc '0-9')
+				echo "Your Main Feature title track is # "$_MainTrack" "
+				echo "Now going to try to digitize your movie titled "$_MovieTitle"."
+				sleep 4
+				HandBrakeCLI -i /dev/sr0 -t "$_MainTrack" -o "$_MovieTitle".mp4 -e x264
+
+
+			break
 			fi
 		else
-		if [ "$_MovieTitle" == "$_CheckForFile" ];
+			if [ "$_retry" == "n" ];
 			then
-				echo "Congratulations you now have a digital copy of your movie "$_MovieTitle".  Enjoy and Thank You! - Jhart"
-				break
+				echo "Sorry your movie has not been copied. Thank You! - Jhart"
+			break
 			fi
 		fi
+	else if [ ""$_MovieTitle.mp4"" == "$_CheckForFile" ];
+	then
+		echo "Congratulations you now have a digital copy of your movie "$_MovieTitle".  Enjoy and Thank You! - Jhart"
+		break
+	fi
+fi
 done
 
 
-#######################################################################
-# Done Message
 
-echo "Enjoy and Thank You! -Jhart"
-sleep 3
 #######################################################################
 exit
 
