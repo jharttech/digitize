@@ -121,7 +121,7 @@ while true; do
 	if [ "" == "$_CheckForFile" ];
 	then
 		echo -e "\n"
-		echo "There was an error with the copying of your movie, usually this means that you need to manually specify the correct title number to encode.  I recommend trying again with a different title number.  If you do not know what this means you can read more about it at https://handbrake.fr/docs/en/1.2.0/ or you can read the manual page by running 'man HandBrakeCLI' in your linux terminal."
+		echo "There was an error with the copying of your movie, usually this means that you need to manually specify the correct title number to encode.  I recommend trying again with a different title number.  If you do not know what this means you can read more about it at https://handbrake.fr/docs/en/1.2.0/ "
 		echo -e "\n"
 		while true; do
 			echo "Would you like to try to copy again using a different title number? y/n"
@@ -136,7 +136,7 @@ while true; do
 					sleep 3
 					HandBrakeCLI -i /dev/sr0 -t "$_Retry" -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160 2>&1 2>&1 | tee output
 					_MainTrack=$(grep -B1 Main output | grep title | tr -dc '0-9')
-					echo "Now going to make a digital backup of "$_MovieTitle" it will be located in ~/Videos/Movie_Backups/" "
+					echo "Now going to make a digital backup of "$_MovieTitle" it will be located in ~/Videos/Movie_Backups/ "
 					echo "Now going to try to digitize your movie titled "$_MovieTitle"."
 					sleep 4
 					HandBrakeCLI -i /dev/sr0 -t "$_MainTrack" -o "$_MovieTitle".mp4 -e x264
