@@ -153,7 +153,8 @@ while true; do
 	else if [ ""$_MovieTitle.mp4"" == "$_CheckForFile" ];
 	then
 		echo "Congratulations you now have a digital copy of your movie "$_MovieTitle".  Enjoy and Thank You! - Jhart"
-		break
+		sleep 3
+		exit
 	fi
 fi
 done
