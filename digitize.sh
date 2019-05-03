@@ -71,7 +71,7 @@ while true; do
 				echo "Your Main Feature title track is # "$_MainTrack" "
 				echo "Now going to try to digitize your movie titled "$_MovieTitle"."
 				sleep 4
-				HandBrakeCLI -i /dev/sr0 -t "$_MainTrack" -o "$_MovieTitle".mp4 -e x264
+				HandBrakeCLI -i /dev/sr0 -t "$_MainTrack" -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160
 			else
 			echo "Now going to make a digital backup of "$_MovieTitle" title track # "$_TitleNum", it will be located in ~/Videos/Movie_Backups/"
 			sleep 3
@@ -87,7 +87,7 @@ while true; do
 				HandBrakeCLI -i /dev/sr0 -t 0 -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160 2>&1 | tee output
 				_CheckMainTrack=$(grep -B1 Main output | grep title | tr -dc '0-9')
 				sleep 2
-				HandBrakeCLI -i /dev/sr0 -t "$_CheckMainTrack" -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160
+				HandBrakeCLI -i /dev/sr0 -t "$_CheckMainTrack" -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160 
 				sleep 5
 				break
 			fi
@@ -134,7 +134,7 @@ while true; do
 				then
 					echo "Now going to scan disc for Main Feature movie track."
 					sleep 3
-					HandBrakeCLI -i /dev/sr0 -t "$_Retry" -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160 2>&1 2>&1 | tee output
+					HandBrakeCLI -i /dev/sr0 -t "$_Retry" -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160 2>&1 | tee output
 					_MainTrack=$(grep -B1 Main output | grep title | tr -dc '0-9')
 					echo "Now going to make a digital backup of "$_MovieTitle" it will be located in ~/Videos/Movie_Backups/ "
 					echo "Now going to try to digitize your movie titled "$_MovieTitle"."
@@ -150,7 +150,7 @@ while true; do
 				fi
 			fi
 		done
-	else if [ ""$_MovieTitle.mp4"" == "$_CheckForFile" ];
+	else if [ ""$_MovieTitle".mp4" == "$_CheckForFile" ];
 	then
 		echo "Congratulations you now have a digital copy of your movie "$_MovieTitle".  Enjoy and Thank You! - Jhart"
 		sleep 3
