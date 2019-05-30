@@ -54,6 +54,7 @@ while true; do
 	echo "Your movies title is "$_MovieTitle""
 	echo "Is the title correct? y/n "
 	read yn
+	while true; do
 	if [ "$yn" == "y" ];
 	then
 		echo "Would you like to specify the title to encode? y/n (If you do not know what this means choose 'n' to use default settings)."
@@ -92,7 +93,9 @@ while true; do
 				break
 			fi
 		fi
+
 	fi
+	done
 done
 ########################################################################
 # Here we check the size of new created movie file to see if it is
