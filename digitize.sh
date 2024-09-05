@@ -19,6 +19,10 @@ echo "
 echo -e "\n"
 
 ################################################################
+# Here we will install needed tools
+
+sudo apt install git ffmpeg handbrake-cli -y
+################################################################
 
 # Here we change directories into the default linux video file
 # location. ~/Videos/
@@ -44,7 +48,11 @@ fi
 
 
 ################################################################
+# Here we attempt to find where the dvd player is mounted
 
+_dvd_player = $(lsblk | grep sr)
+
+################################################################
 # Here we ask for the name of the owned movie to make a digital
 # copy of.
 
@@ -66,16 +74,16 @@ while true; do
 			then
 				echo "Now going to scan disc for Main Feature movie track."
 				sleep 3
-				HandBrakeCLI -i /dev/sr0 -t "$_TitleNum" -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160 2>&1 | tee output
+				HandBrakeCLI -i $_dvd_player -t "$_TitleNum" -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160 2>&1 | tee output
 				_MainTrack=$(grep -B1 Main output | grep title | tr -dc '0-9')
 				echo "Your Main Feature title track is # "$_MainTrack" "
 				echo "Now going to try to digitize your movie titled "$_MovieTitle"."
 				sleep 4
-				HandBrakeCLI -i /dev/sr0 -t "$_MainTrack" -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160
+				HandBrakeCLI -i $_dvd_player -t "$_MainTrack" -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160
 			else
 			echo "Now going to make a digital backup of "$_MovieTitle" title track # "$_TitleNum", it will be located in ~/Videos/Movie_Backups/"
 			sleep 3
-			HandBrakeCLI -i /dev/sr0 -t "$_TitleNum" -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160
+			HandBrakeCLI -i $_dvd_player -t "$_TitleNum" -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160
 			break
 		fi
 		else
@@ -84,10 +92,10 @@ while true; do
 				echo "Going to use default settings."
 				echo "Now going to attemp to make a digital backup of "$_MovieTitle" it will be located in ~/Videos/Movie_Backups/"
 				sleep 3
-				HandBrakeCLI -i /dev/sr0 -t 0 -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160 2>&1 | tee output
+				HandBrakeCLI -i $_dvd_player -t 0 -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160 2>&1 | tee output
 				_CheckMainTrack=$(grep -B1 Main output | grep title | tr -dc '0-9')
 				sleep 2
-				HandBrakeCLI -i /dev/sr0 -t "$_CheckMainTrack" -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160 
+				HandBrakeCLI -i $_dvd_player -t "$_CheckMainTrack" -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160 
 				sleep 5
 				break
 			fi
@@ -103,7 +111,7 @@ done
 # on compression options and dynamic minimum size based on compression
 # type.
 
-_Size=$(lsblk /dev/sr0 | grep -oP '(?<=1 ).*?(?=\.)')
+_Size=$(lsblk $_dvd_player | grep -oP '(?<=1 ).*?(?=\.)')
 _MakeMinSize=$(expr $_Size - 1)
 while true; do
 	#_MinimumSize=$(expr $_MakeMinSize \* 100000000)
@@ -135,12 +143,12 @@ while true; do
 				then
 					echo "Now going to scan disc for Main Feature movie track."
 					sleep 3
-					HandBrakeCLI -i /dev/sr0 -t "$_Retry" -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160 2>&1 | tee output
+					HandBrakeCLI -i $_dvd_player -t "$_Retry" -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160 2>&1 | tee output
 					_MainTrack=$(grep -B1 Main output | grep title | tr -dc '0-9')
 					echo "Now going to make a digital backup of "$_MovieTitle" it will be located in ~/Videos/Movie_Backups/ "
 					echo "Now going to try to digitize your movie titled "$_MovieTitle"."
 					sleep 4
-					HandBrakeCLI -i /dev/sr0 -t "$_MainTrack" -o "$_MovieTitle".mp4 -e x264
+					HandBrakeCLI -i $_dvd_player -t "$_MainTrack" -o "$_MovieTitle".mp4 -e x264
 					break
 				fi
 			else
