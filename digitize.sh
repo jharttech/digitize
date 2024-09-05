@@ -106,18 +106,18 @@ done
 _Size=$(lsblk /dev/sr0 | grep -oP '(?<=1 ).*?(?=\.)')
 _MakeMinSize=$(expr $_Size - 1)
 while true; do
-	_MinimumSize=$(expr $_MakeMinSize \* 100000000)
-	_ActualSize=$(wc -c <"$_MovieTitle".mp4) >> /dev/null
-	if [[ $_ActualSize -ge $_MinimumSize ]];
-	then
-		echo "size is over "$_MinimumSize" bytes"
-		sleep 5
-	else
-		echo "size is under "$_MinimumSize" bytes"
-		rm -f "$_MovieTitle".mp4
-		echo "The chosen Title Index did NOT contain the main movie."
-		sleep 1
-	fi
+	#_MinimumSize=$(expr $_MakeMinSize \* 100000000)
+	#_ActualSize=$(wc -c <"$_MovieTitle".mp4) >> /dev/null
+	#if [[ $_ActualSize -ge $_MinimumSize ]];
+	#then
+	#	echo "size is over "$_MinimumSize" bytes"
+	#	sleep 5
+	#else
+	#	echo "size is under "$_MinimumSize" bytes"
+	#	rm -f "$_MovieTitle".mp4
+	#	echo "The chosen Title Index did NOT contain the main movie."
+	#	sleep 1
+	#fi
 	_CheckForFile=$(ls | grep "$_MovieTitle")
 	if [ "" == "$_CheckForFile" ];
 	then
