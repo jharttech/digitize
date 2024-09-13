@@ -91,12 +91,15 @@ fi
 # Here we attempt to find where the DVD player is mounted
 
 echo "Detecting DVD devices and mount points..."
-lsblk | grep sr | awk -F" " '{print "/dev/"$1}'
-echo "Please type the path for your DVD (example: /dev/sr0)"
-read "dvd_devices"
+lsblk | grep sr | awk -F" " '{print "/dev/"$1}' | nl -s': '
+echo "Please type a number corresponding to your DVD Player"
+read "user_input"
 
+dvd_devices=$(lsblk | grep sr | awk -F" " '{print "/dev/"$1}' | awk 'NR=='$user_input)
 
-if [ -z "$dvd_devices" ]; then
+echo "$dvd_devices"
+
+if [ -z "$user_input" ]; then
     echo "No DVD player detected."
     exit 1
 fi
