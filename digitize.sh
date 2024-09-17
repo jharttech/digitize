@@ -123,12 +123,12 @@ while true; do
             if [ "$_TitleNum" == "0" ]; then
                 echo "Now going to scan disc for Main Feature movie track."
                 sleep 3
-                HandBrakeCLI -i $dvd_devices -t "$_TitleNum" -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160 2>&1 | tee output
+                HandBrakeCLI -i $dvd_devices -t "$_TitleNum" -o "$_MovieTitle".mp4 -e x264 -q 18 -B 192  2>&1 | tee output
                 _MainTrack=$(grep -B1 Main output | grep title | tr -dc '0-9')
                 echo "Your Main Feature title track is # $_MainTrack"
                 echo "Now going to try to digitize your movie titled $_MovieTitle."
                 sleep 4
-                HandBrakeCLI -i $dvd_devices -t "$_MainTrack" -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160
+                HandBrakeCLI -i $dvd_devices -t "$_MainTrack" -o "$_MovieTitle".mp4 -e x264 -q 18 -B 192 
             else
                 if [ "$confirmed" == "y" ]; then
                     echo "Now going to make a digital backup of $_MovieTitle title track # $_TitleNum, it will be located in /media/$username/$device_name/Moviess"
@@ -136,7 +136,8 @@ while true; do
                     echo "Now going to make a digital backup of $_MovieTitle title track # $_TitleNum, it will be located in ~/Videos/Movie_Backups/"
                 fi
                 sleep 3
-                HandBrakeCLI -i $dvd_devices -t "$_TitleNum" -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160
+                #HandBrakeCLI -i $dvd_devices -t "$_TitleNum" -o "$_MovieTitle".mp4 -e x264 -q 18 -B 192  #Uncommint this line and commint bellow to reduce filesize at quality expense
+                HandBrakeCLI -i $dvd_devices -t "$_TitleNum" -o "$_MovieTitle".mp4 -e x264 -q 18 -B 192 
                 break
             fi
         else
@@ -148,10 +149,10 @@ while true; do
                     echo "Now going to make a digital backup of $_MovieTitle title track # $_TitleNum, it will be located in ~/Videos/Movie_Backups/"
                 fi
                 sleep 3
-                HandBrakeCLI -i $dvd_devices -t 0 -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160 2>&1 | tee output
+                HandBrakeCLI -i $dvd_devices -t 0 -o "$_MovieTitle".mp4 -e x264 -q 18 -B 192  2>&1 | tee output
                 _CheckMainTrack=$(grep -B1 Main output | grep title | tr -dc '0-9')
                 sleep 2
-                HandBrakeCLI -i $dvd_devices -t "$_CheckMainTrack" -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160
+                HandBrakeCLI -i $dvd_devices -t "$_TitleNum" -o "$_MovieTitle".mp4 -e x264 -q 18 -B 192 
                 sleep 5
                 break
             fi
@@ -195,7 +196,7 @@ while true; do
                 if [ "$_Retry" == "0" ]; then
                     echo "Now going to scan disc for Main Feature movie track."
                     sleep 3
-                    HandBrakeCLI -i $dvd_devices -t "$_Retry" -o "$_MovieTitle".mp4 -e x264 -q 20 -B 160 2>&1 | tee output
+                    HandBrakeCLI -i $dvd_devices -t "$_Retry" -o "$_MovieTitle".mp4 -e x264 -q 18 -B 192  2>&1 | tee output
                     _MainTrack=$(grep -B1 Main output | grep title | tr -dc '0-9')
                     echo "Now going to make a digital backup of $_MovieTitle, it will be located in ~/Videos/Movie_Backups/"
                     echo "Now going to try to digitize your movie titled $_MovieTitle."
