@@ -24,7 +24,7 @@ echo ""
 echo "Do you have an external hard drive you would like to store the Movie in? y/n"
 read "confirmed"
 if [ "$confirmed" == "y" ]; then
-     echo ""
+    echo ""
     lsblk -o NAME,TYPE,MOUNTPOINT | grep /media | awk -F"/" '{print $NF}'| nl -s': '
 
     echo "Please type a number corresponding to the device you like to store the movie on."
@@ -194,7 +194,7 @@ while true; do
             read _retry
             if [ "$_retry" == "y" ]; then
                 echo "Please enter the number of the title to encode (If you do not know please enter '0'): "
-                read "_RetryVarVar"
+                read "_RetryVar"
                 if [ "$_RetryVar" == "0" ]; then
                     echo "Now going to scan disc for Main Feature movie track."
                     sleep 3
@@ -214,8 +214,7 @@ while true; do
                     echo "Now going to try to digitize your movie titled $_MovieTitle."
                     sleep 4
                     HandBrakeCLI -i $dvd_devices -t "$_MainTrack" -o "$_MovieTitle".mp4 -e x264
-                    break
-                    
+                    break  
                 fi
             else
                 if [ "$_retry" == "n" ]; then
