@@ -25,12 +25,14 @@ echo "Do you have an external hard drive you would like to store the Movie in? y
 read "confirmed"
 if [ "$confirmed" == "y" ]; then
     echo ""
-    lsblk -o NAME,TYPE,MOUNTPOINT | grep /media | awk -F"/" '{print $NF}'
+    lsblk -o NAME,TYPE,MOUNTPOINT | grep /media | awk -F"/" '{print $NF}'| nl -s': '
 
-    echo "Which of these devices above would you like to store the movie on?"
+    echo "Please type a number corresponding to the device you like to store the movie on."
 
 
-    read "device_name"
+    read "device_name_input"
+
+    device_name=$(lsblk -o NAME,TYPE,MOUNTPOINT | grep /media | awk -F"/" '{print $NF}' | awk 'NR=='$device_name_input)
 
     username=$(echo $USER)
     cd /media/$username/$device_name
@@ -192,17 +194,27 @@ while true; do
             read _retry
             if [ "$_retry" == "y" ]; then
                 echo "Please enter the number of the title to encode (If you do not know please enter '0'): "
-                read "_Retry"
-                if [ "$_Retry" == "0" ]; then
+                read "_RetryVar"
+                if [ "$_RetryVar" == "0" ]; then
                     echo "Now going to scan disc for Main Feature movie track."
                     sleep 3
-                    HandBrakeCLI -i $dvd_devices -t "$_Retry" -o "$_MovieTitle".mp4 -e x264 -q 18 -B 192  2>&1 | tee output
+                    HandBrakeCLI -i $dvd_devices -t "$_RetryVar" -o "$_MovieTitle".mp4 -e x264 -q 18 -B 192  2>&1 | tee output
                     _MainTrack=$(grep -B1 Main output | grep title | tr -dc '0-9')
                     echo "Now going to make a digital backup of $_MovieTitle, it will be located in ~/Videos/Movie_Backups/"
                     echo "Now going to try to digitize your movie titled $_MovieTitle."
                     sleep 4
                     HandBrakeCLI -i $dvd_devices -t "$_MainTrack" -o "$_MovieTitle".mp4 -e x264
                     break
+                else
+                    echo "Now going to scan disc for Main Feature movie track."
+                    sleep 3
+                    HandBrakeCLI -i $dvd_devices -t "$_RetryVar" -o "$_MovieTitle".mp4 -e x264 -q 18 -B 192  2>&1 | tee output
+                    _MainTrack=$(grep -B1 Main output | grep title | tr -dc '0-9')
+                    echo "Now going to make a digital backup of $_MovieTitle, it will be located in ~/Videos/Movie_Backups/"
+                    echo "Now going to try to digitize your movie titled $_MovieTitle."
+                    sleep 4
+                    HandBrakeCLI -i $dvd_devices -t "$_MainTrack" -o "$_MovieTitle".mp4 -e x264
+                    break  
                 fi
             else
                 if [ "$_retry" == "n" ]; then
