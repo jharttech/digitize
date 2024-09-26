@@ -203,7 +203,7 @@ read "yn"
                 HandBrakeCLI -i $dvd_devices -t 0 -o "$_MovieTitle".mp4 -e x264 -q 18 -B 192  2>&1 | tee output
                 _CheckMainTrack=$(grep -B1 Main output | grep title | tr -dc '0-9')
                 sleep 2
-                HandBrakeCLI -i $dvd_devices -t "$_TitleNum" -o "$_MovieTitle".mp4 -e x264 -q 18 -B 192 
+                HandBrakeCLI -i $dvd_devices -t "$_CheckMainTrack" -o "$_MovieTitle".mp4 -e x264 -q 18 -B 192 
                 sleep 5
                 break
             fi
