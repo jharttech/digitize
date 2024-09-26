@@ -110,12 +110,61 @@ fi
 # Here we ask for the name of the owned movie to make a digital
 # copy of.
 
-echo "Please enter your movie's title (Use underscores for spaces)."
-read "_MovieTitle"
+# Here we grab the name of the owned movie to make a digital
+# copy of.
+
+_MovieTitle=$(lsdvd /dev/sr0 2>/dev/null | grep 'Disc Title:' | awk '{print $3}')
+
+#echo "Please enter your movie's title (Use underscores for spaces)."
+#read "_MovieTitle"
 echo "Your movie's title is $_MovieTitle"
 echo "Is the title correct? y/n "
 read "yn"
-while true; do
+    if [ "$yn" == "n" ]; then
+        echo "Please enter your movie's title (Use underscores for spaces)."
+        read "_MovieTitle"
+        echo "Would you like to specify the title to encode? y/n (If you do not know what this means choose 'n' to use default settings)."
+        read yesno
+        if [ "$yesno" == "y" ]; then
+            echo "Please enter the number of the title to encode (If you do not know please enter '0'): "
+            read _TitleNum
+            if [ "$_TitleNum" == "0" ]; then
+                echo "Now going to scan disc for Main Feature movie track."
+                sleep 3
+                HandBrakeCLI -i $dvd_devices -t "$_TitleNum" -o "$_MovieTitle".mp4 -e x264 -q 18 -B 192  2>&1 | tee output
+                _MainTrack=$(grep -B1 Main output | grep title | tr -dc '0-9')
+                echo "Your Main Feature title track is # $_MainTrack"
+                echo "Now going to try to digitize your movie titled $_MovieTitle."
+                sleep 4
+                HandBrakeCLI -i $dvd_devices -t "$_MainTrack" -o "$_MovieTitle".mp4 -e x264 -q 18 -B 192 
+            else
+                if [ "$confirmed" == "y" ]; then
+                    echo "Now going to make a digital backup of $_MovieTitle title track # $_TitleNum, it will be located in /media/$username/$device_name/Moviess"
+                else
+                    echo "Now going to make a digital backup of $_MovieTitle title track # $_TitleNum, it will be located in ~/Videos/Movie_Backups/"
+                fi
+                sleep 3
+                #HandBrakeCLI -i $dvd_devices -t "$_TitleNum" -o "$_MovieTitle".mp4 -e x264 -q 18 -B 192  #Uncommint this line and commint bellow to reduce filesize at quality expense
+                HandBrakeCLI -i $dvd_devices -t "$_TitleNum" -o "$_MovieTitle".mp4 -e x264 -q 18 -B 192 
+                break
+            fi
+        else
+            if [ "$yesno" == "n" ]; then
+                echo "Going to use default settings."
+                if [ "$confirmed" == "y" ]; then
+                    echo "Now going to make a digital backup of $_MovieTitle title track # $_TitleNum, it will be located in /media/$username/$device_name/Moviess"
+                else
+                    echo "Now going to make a digital backup of $_MovieTitle title track # $_TitleNum, it will be located in ~/Videos/Movie_Backups/"
+                fi
+                sleep 3
+                HandBrakeCLI -i $dvd_devices -t 0 -o "$_MovieTitle".mp4 -e x264 -q 18 -B 192  2>&1 | tee output
+                _CheckMainTrack=$(grep -B1 Main output | grep title | tr -dc '0-9')
+                sleep 2
+                HandBrakeCLI -i $dvd_devices -t "$_TitleNum" -o "$_MovieTitle".mp4 -e x264 -q 18 -B 192 
+                sleep 5
+                break
+            fi
+        fi
     if [ "$yn" == "y" ]; then
         echo "Would you like to specify the title to encode? y/n (If you do not know what this means choose 'n' to use default settings)."
         read yesno
@@ -160,8 +209,7 @@ while true; do
             fi
         fi
     fi
-done
-
+fi
 ########################################################################
 # Here we check the size of the newly created movie file to see if it is
 # big enough to be the actual movie.
