@@ -113,7 +113,7 @@ fi
 # Here we grab the name of the owned movie to make a digital
 # copy of.
 
-_MovieTitle=$(lsdvd /dev/sr0 2>/dev/null | grep 'Disc Title:' | awk '{print $3}')
+_MovieTitle=$(lsdvd $dvd_devices 2>/dev/null | grep 'Disc Title:' | awk '{print $3}')
 
 #echo "Please enter your movie's title (Use underscores for spaces)."
 #read "_MovieTitle"
@@ -165,7 +165,7 @@ read "yn"
                 break
             fi
         fi
-    if [ "$yn" == "y" ]; then
+    else [ "$yn" == "y" ];
         echo "Would you like to specify the title to encode? y/n (If you do not know what this means choose 'n' to use default settings)."
         read yesno
         if [ "$yesno" == "y" ]; then
@@ -203,7 +203,7 @@ read "yn"
                 HandBrakeCLI -i $dvd_devices -t 0 -o "$_MovieTitle".mp4 -e x264 -q 18 -B 192  2>&1 | tee output
                 _CheckMainTrack=$(grep -B1 Main output | grep title | tr -dc '0-9')
                 sleep 2
-                HandBrakeCLI -i $dvd_devices -t "$_TitleNum" -o "$_MovieTitle".mp4 -e x264 -q 18 -B 192 
+                HandBrakeCLI -i $dvd_devices -t "$_CheckMainTrack" -o "$_MovieTitle".mp4 -e x264 -q 18 -B 192 
                 sleep 5
                 break
             fi
