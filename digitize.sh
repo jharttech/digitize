@@ -217,68 +217,53 @@ fi
 # to be changed for different compression options.  I will be working
 # on compression options and dynamic minimum size based on compression
 # type.
-
-_Size=$(lsblk $dvd_devices | grep -oP '(?<=1 ).*?(?=\.)')
-_MakeMinSize=$(expr $_Size - 1)
-while true; do
-    # _MinimumSize=$(expr $_MakeMinSize \* 100000000)
-    # _ActualSize=$(wc -c <"$_MovieTitle".mp4) >> /dev/null
-    # if [[ $_ActualSize -ge $_MinimumSize ]]; then
-    #     echo "size is over $_MinimumSize bytes"
-    #     sleep 5
-    # else
-    #     echo "size is under $_MinimumSize bytes"
-    #     rm -f "$_MovieTitle".mp4
-    #     echo "The chosen Title Index did NOT contain the main movie."
-    #     sleep 1
-    # fi
-    _CheckForFile=$(ls | grep "$_MovieTitle")
-    if [ -z "$_CheckForFile" ]; then
-        echo -e "\n"
-        echo "There was an error with the copying of your movie, usually this means that you need to manually specify the correct title number to encode. I recommend trying again with a different title number. If you do not know what this means you can read more about it at https://handbrake.fr/docs/en/1.2.0/"
-        echo -e "\n"
-        while true; do
-            echo "Would you like to try to copy again using a different title number? y/n"
-            read _retry
-            if [ "$_retry" == "y" ]; then
-                echo "Please enter the number of the title to encode (If you do not know please enter '0'): "
-                read "_RetryVar"
-                if [ "$_RetryVar" == "0" ]; then
-                    echo "Now going to scan disc for Main Feature movie track."
-                    sleep 3
-                    HandBrakeCLI -i $dvd_devices -t "$_RetryVar" -o "$_MovieTitle".mp4 -e x264 -q 18 -B 192  2>&1 | tee output
-                    _MainTrack=$(grep -B1 Main output | grep title | tr -dc '0-9')
-                    echo "Now going to make a digital backup of $_MovieTitle, it will be located in ~/Videos/Movie_Backups/"
-                    echo "Now going to try to digitize your movie titled $_MovieTitle."
-                    sleep 4
-                    HandBrakeCLI -i $dvd_devices -t "$_MainTrack" -o "$_MovieTitle".mp4 -e x264
-                    break
-                else
-                    echo "Now going to scan disc for Main Feature movie track."
-                    sleep 3
-                    HandBrakeCLI -i $dvd_devices -t "$_RetryVar" -o "$_MovieTitle".mp4 -e x264 -q 18 -B 192  2>&1 | tee output
-                    _MainTrack=$(grep -B1 Main output | grep title | tr -dc '0-9')
-                    echo "Now going to make a digital backup of $_MovieTitle, it will be located in ~/Videos/Movie_Backups/"
-                    echo "Now going to try to digitize your movie titled $_MovieTitle."
-                    sleep 4
-                    HandBrakeCLI -i $dvd_devices -t "$_MainTrack" -o "$_MovieTitle".mp4 -e x264
-                    break  
-                fi
+_CheckForFile=$(ls | grep "$_MovieTitle")
+if [ -z "$_CheckForFile" ]; then
+    echo -e "\n"
+    echo "There was an error with the copying of your movie, usually this means that you need to manually specify the correct title number to encode. I recommend trying again with a different title number. If you do not know what this means you can read more about it at https://handbrake.fr/docs/en/1.2.0/"
+    echo -e "\n"
+    while true; do
+        echo "Would you like to try to copy again using a different title number? y/n"
+        read _retry
+        if [ "$_retry" == "y" ]; then
+            echo "Please enter the number of the title to encode (If you do not know please enter '0'): "
+            read "_RetryVar"
+            if [ "$_RetryVar" == "0" ]; then
+                echo "Now going to scan disc for Main Feature movie track."
+                sleep 3
+                HandBrakeCLI -i $dvd_devices -t "$_RetryVar" -o "$_MovieTitle".mp4 -e x264 -q 18 -B 192  2>&1 | tee output
+                _MainTrack=$(grep -B1 Main output | grep title | tr -dc '0-9')
+                echo "Now going to make a digital backup of $_MovieTitle, it will be located in ~/Videos/Movie_Backups/"
+                echo "Now going to try to digitize your movie titled $_MovieTitle."
+                sleep 4
+                HandBrakeCLI -i $dvd_devices -t "$_MainTrack" -o "$_MovieTitle".mp4 -e x264
+                break
             else
-                if [ "$_retry" == "n" ]; then
-                    echo "Sorry, your movie has not been copied. Thank you! - Jhart"
-                    exit
-                fi
+                echo "Now going to scan disc for Main Feature movie track."
+                sleep 3
+                HandBrakeCLI -i $dvd_devices -t "$_RetryVar" -o "$_MovieTitle".mp4 -e x264 -q 18 -B 192  2>&1 | tee output
+                _MainTrack=$(grep -B1 Main output | grep title | tr -dc '0-9')
+                echo "Now going to make a digital backup of $_MovieTitle, it will be located in ~/Videos/Movie_Backups/"
+                echo "Now going to try to digitize your movie titled $_MovieTitle."
+                sleep 4
+                HandBrakeCLI -i $dvd_devices -t "$_MainTrack" -o "$_MovieTitle".mp4 -e x264
+                break  
             fi
-        done
-    else
-        if [ "$_MovieTitle".mp4 == "$_CheckForFile" ]; then
-            echo "Congratulations, you now have a digital copy of your movie $_MovieTitle. Enjoy and Thank You! - Jhart"
-            sleep 3
-            exit
+        else
+            if [ "$_retry" == "n" ]; then
+                echo "Sorry, your movie has not been copied. Thank you! - Jhart"
+                exit
+            fi
         fi
+    done
+else
+    if [ "$_MovieTitle".mp4 == "$_CheckForFile" ]; then
+        echo "Congratulations, you now have a digital copy of your movie $_MovieTitle. Enjoy and Thank You! - Jhart"
+        sleep 3
+        exit
     fi
-done
+fi
+
 
 #######################################################################
 exit
